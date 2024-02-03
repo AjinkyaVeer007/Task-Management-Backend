@@ -85,21 +85,26 @@ export const login = async (req, res) => {
 
     const options = {
       httpOnly: true,
+      secure: true,
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     };
 
-    return res.status(200).cookie("token", token, options).json({
-      data: user,
-      message: "User login successfully",
-      success: true,
-    });
+    return res
+      .status(200)
+      .cookie("token", token, options)
+      .cookie("userId", user._id)
+      .json({
+        data: user,
+        message: "User login successfully",
+        success: true,
+      });
   } catch (error) {
     console.log("fail to login user", error);
   }
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("token").status(200).json({
+  res.clearCookie("token").clearCookie("userId").status(200).json({
     message: "User logout successfully",
     success: true,
   });
