@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     adminId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       default: null,
     },
   },
