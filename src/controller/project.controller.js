@@ -1,5 +1,4 @@
 import Project from "../models/project.model.js";
-import Project_Users_Link from "../models/projectUsersLink.model.js";
 
 export const createProject = async (req, res) => {
   try {
@@ -25,10 +24,6 @@ export const createProject = async (req, res) => {
       name,
       description,
       endDate,
-    });
-
-    await Project_Users_Link.create({
-      projectId: project._id,
       users,
     });
 
@@ -45,26 +40,7 @@ export const getProjects = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const projectIds = await Project_Users_Link.find(
-      { users: userId },
-      { projectId: 1 }
-    );
-
-    const projects = await Project.aggregate([
-      {
-        $match: {
-          _id: {
-            $in: projectIds.map((entry) => entry.projectId),
-          },
-        },
-      },
-      {
-        $project: {
-          createdAt: 0,
-          updatedAt: 0,
-        },
-      },
-    ]);
+    const projects = await Project.find({ users: userId });
 
     res.status(200).json({
       success: true,
@@ -73,5 +49,40 @@ export const getProjects = async (req, res) => {
     });
   } catch (error) {
     console.log("Fail to get projects", error);
+  }
+};
+
+export const updateProject = async (req, res) => {
+  try {
+    const data = req.body;
+
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params.id,
+      data,
+      { new: true }
+    );
+
+    if (updateProject) {
+      res.status(200).json({
+        success: true,
+        data: updatedProject,
+        message: "project updated successfully",
+      });
+    }
+  } catch (error) {
+    console.log("Fail to update project", error);
+  }
+};
+
+export const deleteProject = async (req, res) => {
+  try {
+    await Project.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Project deleted successfully",
+    });
+  } catch (error) {
+    console.log("Fail to delete project", error);
   }
 };

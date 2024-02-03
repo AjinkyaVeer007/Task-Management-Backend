@@ -14,6 +14,15 @@ const projectSchema = new mongoose.Schema(
     endDate: {
       type: Date,
     },
+    users: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      require: true,
+    },
   },
   { timestamps: true }
 );
