@@ -13,10 +13,15 @@ const taskSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    assignUser: {
+    assignTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "User ids are mandatory"],
+    },
+    assignBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
