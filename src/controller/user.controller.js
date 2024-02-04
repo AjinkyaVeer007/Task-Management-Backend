@@ -93,6 +93,7 @@ export const login = async (req, res) => {
       .status(200)
       .cookie("token", token, options)
       .cookie("userId", user._id)
+      .cookie("userType", user.userType)
       .json({
         data: user,
         message: "User login successfully",
@@ -104,8 +105,13 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("token").clearCookie("userId").status(200).json({
-    message: "User logout successfully",
-    success: true,
-  });
+  res
+    .clearCookie("token")
+    .clearCookie("userId")
+    .clearCookie("userType")
+    .status(200)
+    .json({
+      message: "User logout successfully",
+      success: true,
+    });
 };

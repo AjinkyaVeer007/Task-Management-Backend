@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import userRoutes from "./src/routes/user.routes.js";
 import projectRoutes from "./src/routes/project.routes.js";
+import taskRoutes from "./src/routes/task.routes.js";
 import dbConnection from "./src/config/database.js";
 import cookieParser from "cookie-parser";
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/project", projectRoutes);
+app.use("/api/v1/task", taskRoutes);
 
 dbConnection()
   .then(() => {

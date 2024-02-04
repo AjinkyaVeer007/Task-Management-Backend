@@ -1,8 +1,11 @@
+import mongoose from "mongoose";
 import Project from "../models/project.model.js";
+
+const ObjectId = mongoose.Types.ObjectId;
 
 export const createProject = async (req, res) => {
   try {
-    const { name, description, endDate, users } = req.body;
+    const { name, description, endDate, users, createdBy } = req.body;
 
     if (!name || !users) {
       return res.status(400).json({
@@ -25,9 +28,11 @@ export const createProject = async (req, res) => {
       description,
       endDate,
       users,
+      createdBy,
     });
 
     res.status(200).json({
+      data: project,
       message: "Project created successfully",
       success: true,
     });
@@ -39,8 +44,64 @@ export const createProject = async (req, res) => {
 export const getProjects = async (req, res) => {
   try {
     const { userId } = req.params;
+    const userType = req.cookies["userType"];
 
-    const projects = await Project.find({ users: userId });
+    let projects = [];
+    if (userType === "admin") {
+      projects = await Project.aggregate([
+        {
+          $match: {
+            createdBy: new ObjectId(userId),
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "users",
+            foreignField: "_id",
+            as: "users",
+          },
+        },
+        {
+          $project: {
+            "users._id": 0,
+            "users.password": 0,
+            "users.userType": 0,
+            "users.adminId": 0,
+            "users.createdAt": 0,
+            "users.updatedAt": 0,
+            "users.__v": 0,
+          },
+        },
+      ]);
+    } else {
+      projects = await Project.aggregate([
+        {
+          $match: {
+            users: new ObjectId(userId),
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "users",
+            foreignField: "_id",
+            as: "users",
+          },
+        },
+        {
+          $project: {
+            "users._id": 0,
+            "users.password": 0,
+            "users.userType": 0,
+            "users.adminId": 0,
+            "users.createdAt": 0,
+            "users.updatedAt": 0,
+            "users.__v": 0,
+          },
+        },
+      ]);
+    }
 
     res.status(200).json({
       success: true,
