@@ -243,7 +243,7 @@ export const deleteTask = async (req, res) => {
       });
     } else {
       return res.status(400).json({
-        message: "Unauthorized user",
+        message: "User don't have rights to delete task",
         success: false,
       });
     }

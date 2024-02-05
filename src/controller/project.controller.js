@@ -137,12 +137,21 @@ export const updateProject = async (req, res) => {
 
 export const deleteProject = async (req, res) => {
   try {
-    await Project.findByIdAndDelete(req.params.id);
+    const userType = req.cookies["userType"];
 
-    res.status(200).json({
-      success: true,
-      message: "Project deleted successfully",
-    });
+    if (userType === "admin") {
+      await Project.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({
+        success: true,
+        message: "Project deleted successfully",
+      });
+    } else {
+      return res.status(400).json({
+        message: "User don't have rights to delete project",
+        success: false,
+      });
+    }
   } catch (error) {
     console.log("Fail to delete project", error);
   }
