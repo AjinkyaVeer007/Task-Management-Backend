@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    oneTimePassword: {
+      type: String,
+      default: null,
+    },
+    isPasswordChange: {
+      type: String,
+      default: false,
+    },
     userType: {
       type: String,
       required: true,

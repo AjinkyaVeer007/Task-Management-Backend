@@ -6,7 +6,15 @@ const saltRounds = 10;
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, userType, adminId } = req.body;
+    const {
+      name,
+      email,
+      password,
+      userType,
+      adminId,
+      oneTimePassword,
+      isPasswordChange,
+    } = req.body;
 
     if (!name || !email || !password || !userType) {
       return res.status(400).json({
@@ -30,8 +38,10 @@ export const register = async (req, res) => {
       name,
       email,
       password: encryptedPassword,
+      oneTimePassword,
       userType,
       adminId,
+      isPasswordChange,
     });
 
     return res.status(200).json({
@@ -63,7 +73,12 @@ export const login = async (req, res) => {
       });
     }
 
-    const comparePassword = await bcrypt.compare(password, user.password);
+    let comparePassword;
+    if (user.isPasswordChange) {
+      comparePassword = await bcrypt.compare(password, user.password);
+    } else {
+      comparePassword = password === user.oneTimePassword;
+    }
 
     if (!comparePassword) {
       return res.status(400).json({
@@ -114,4 +129,35 @@ export const logout = async (req, res) => {
       message: "User logout successfully",
       success: true,
     });
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userId = req.cookies["userId"];
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid email id",
+        success: false,
+      });
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      isPasswordChange: true,
+      password: password,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password changes successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
